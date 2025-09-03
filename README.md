@@ -7,7 +7,7 @@ Secure document sharing application written in Go, inspired by https://github.co
 Foundation & Setup
 
 - [x] Initialize Go module and install dependencies
-- [ ] Set up PostgreSQL connection with GORM
+- [x] Set up PostgreSQL connection with GORM
 - [ ] Create database models and migrations
 - [ ] Set up Gin/Echo router with basic middleware
 - [ ] Implement configuration management (env vars)
