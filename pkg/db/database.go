@@ -2,13 +2,25 @@ package db
 
 import (
 	"fmt"
+	"share-docs/pkg/util"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
+var (
+	host     = util.GetEnv("DB_HOST", "localhost")
+	port     = util.GetEnv("DB_PORT", "5432")
+	user     = util.GetEnv("DB_USER", "postgres")
+	password = util.GetEnv("DB_PASSWORD", "postgres")
+	dbname   = util.GetEnv("DB_NAME", "share_docs")
+)
+
 func Connect() *gorm.DB {
-	connectionString := "host=localhost user=postgres password=postgres dbname=share_docs port=5432 sslmode=disable"
+	connectionString := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+		host, user, password, dbname, port,
+	)
 
 	db, err := gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 
