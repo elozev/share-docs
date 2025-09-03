@@ -6,7 +6,7 @@ Secure document sharing application written in Go, inspired by https://github.co
 ## Plan
 Foundation & Setup
 
-- [ ] Initialize Go module and install dependencies
+- [x] Initialize Go module and install dependencies
 - [ ] Set up PostgreSQL connection with GORM
 - [ ] Create database models and migrations
 - [ ] Set up Gin/Echo router with basic middleware
@@ -35,3 +35,36 @@ Shareable Links & Security
 - [ ] Build public document viewing endpoint
 - [ ] Add link expiration handling
 - [ ] Security hardening (rate limiting, input validation)
+
+
+## API Endpoints
+
+__Auth__
+```
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/refresh
+```
+
+__Documents__
+```
+GET    /api/documents              # List user documents
+POST   /api/documents              # Upload new document
+GET    /api/documents/:id          # Get document details
+PUT    /api/documents/:id          # Update document
+DELETE /api/documents/:id          # Delete document
+POST   /api/documents/:id/version  # Upload new version
+GET    /api/documents/:id/preview  # Get document preview
+```
+
+__Shareable Links__
+```
+
+```
+POST   /api/documents/:id/links    # Create shareable link
+GET    /api/documents/:id/links    # List document links
+PUT    /api/links/:linkId          # Update link settings
+DELETE /api/links/:linkId          # Delete link
+GET    /api/shared/:token          # Access shared document (public)
+POST   /api/shared/:token/verify   # Verify password for protected link
+```
