@@ -1,6 +1,13 @@
 package main
 
-import "share-docs/pkg/db"
+import (
+	"context"
+	"fmt"
+	database "share-docs/pkg/db"
+	"share-docs/pkg/db/models"
+
+	"gorm.io/gorm"
+)
 
 func main() {
 	// r := routes.SetupRouter()
@@ -20,6 +27,19 @@ func main() {
 
 	// s.ListenAndServe()
 
-	db.Connect()
+	db := database.Connect()
 
+	user := models.User{
+		Email:    "test@example.com",
+		Name:     "Test User",
+		Birthday: nil,
+	}
+
+	ctx := context.Background()
+	err := gorm.G[models.User](db).Create(ctx, &user)
+
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Successfully created user!")
 }

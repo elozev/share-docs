@@ -6,6 +6,8 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 var (
