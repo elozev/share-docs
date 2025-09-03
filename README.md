@@ -2,6 +2,7 @@
 
 Secure document sharing application written in Go, inspired by https://github.com/mfts/papermark.
 
+<img src="gopher-docs.png" width="200" />
 
 ## Plan
 Foundation & Setup
