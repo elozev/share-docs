@@ -1,0 +1,27 @@
+package models
+
+import (
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
+
+type Document struct {
+	gorm.Model
+	ID uuid.UUID `gorm:"type:uuid,primary_key;default;gen_random_uuid()"`
+
+	// File information
+	OriginalFilename string
+	FilePath         string
+	FileSize         int64
+	MimeType         string
+	FileHash         string
+
+	// Metadata
+	Title       *string `gorm:"size:255"`
+	Description *string `gorm:"size:1000"`
+	Tags        string  `gorm:"size:500"`
+
+	// Relationships
+	UserID uuid.UUID `gorm:"type:uuid;not null;index"`
+	User   User      `gorm:"foreignKey:UserID"`
+}
