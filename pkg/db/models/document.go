@@ -25,3 +25,10 @@ type Document struct {
 	UserID uuid.UUID `gorm:"type:uuid;not null;index"`
 	User   User      `gorm:"foreignKey:UserID"`
 }
+
+func (d *Document) BeforeCreate(tx *gorm.DB) error {
+	if d.ID == uuid.Nil {
+		d.ID = uuid.New()
+	}
+	return nil
+}
