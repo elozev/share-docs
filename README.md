@@ -9,13 +9,15 @@ Foundation & Setup
 
 - [x] Initialize Go module and install dependencies
 - [x] Set up PostgreSQL connection with GORM
-- [ ] Create database models and migrations
+- [x] Create database models and migrations
 - [ ] Set up Gin/Echo router with basic middleware
 - [ ] Implement configuration management (env vars)
 - [ ] Basic project structure and error handling
 
 Authentication & File Upload
-
+- [ ] Base setup
+    - [ ] Create an internal command which generates API keys and stores them in the database (encrypted)
+- [ ] Endpoints for generating JWT access keys and refresh tokens
 - [ ] Implement user registration/login with JWT
 - [ ] Create auth middleware for protected routes
 - [ ] Build file upload endpoint with validation
