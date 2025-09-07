@@ -6,6 +6,7 @@ import (
 	database "share-docs/pkg/db"
 	"share-docs/pkg/db/models"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
