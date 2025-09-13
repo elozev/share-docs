@@ -11,7 +11,7 @@ Foundation & Setup
 - [x] Set up PostgreSQL connection with GORM
 - [x] Create database models and migrations
 - [ ] Set up Gin/Echo router with basic middleware
-- [ ] Implement configuration management (env vars)
+- [x] Implement configuration management (env vars)
 - [ ] Basic project structure and error handling
 
 Authentication & File Upload
