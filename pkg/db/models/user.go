@@ -8,12 +8,16 @@ import (
 )
 
 type User struct {
-	gorm.Model
-	ID uuid.UUID `gorm:"type:uuid,primaryKey;default;gen_random_uuid()"`
+	gorm.Model `json:"-"`
+	ID         uuid.UUID `gorm:"type:uuid,primaryKey;default;gen_random_uuid()" json:"id"`
 
-	Email    string
-	Name     string
-	Birthday *time.Time
+	Email      string     `gorm:"unique" json:"email"`
+	Password   string     `gorm:"not null, size:255" json:"-"`
+	FirstName  string     `json:"first_name"`
+	LastName   string     `json:"last_name"`
+	BirthDate  *time.Time `json:"birth_date"`
+	IsActive   bool       `json:"is_active"`
+	IsVerified bool       `json:"is_verified"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) error {

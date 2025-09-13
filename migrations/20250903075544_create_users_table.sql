@@ -6,13 +6,17 @@ CREATE TABLE users (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMP WITH TIME ZONE,
   email VARCHAR(255) NOT NULL,
-  name VARCHAR(255) NOT NULL,
-  birthday TIMESTAMP WITH TIME ZONE
+  password VARCHAR(255) NOT NULL,
+  first_name VARCHAR(255) NOT NULL,
+  last_name VARCHAR(255) NOT NULL,
+  birth_date TIMESTAMP WITH TIME ZONE,
+  is_active BOOLEAN,
+  is_verified BOOLEAN
 );
 
+--
 CREATE INDEX idx_users_deleted_at ON users (deleted_at);
 CREATE UNIQUE INDEX idx_users_email ON users (email);
-
 -- +goose StatementEnd
 
 -- +goose Down
