@@ -3,6 +3,8 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"share-docs/pkg/logger"
+	"share-docs/pkg/middleware"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -11,9 +13,8 @@ import (
 )
 
 type BaseHandler struct {
-	db *gorm.DB
-	// TODO: add logger
-	//
+	db     *gorm.DB
+	logger *logger.Logger
 }
 
 type StandardResponse struct {
@@ -37,7 +38,20 @@ type ErrorResponse struct {
 	Code    int    `json:"code,omitemtpy"`
 }
 
+func NewBaseHandler(db *gorm.DB, log *logger.Logger) *BaseHandler {
+	return &BaseHandler{
+		db:     db,
+		logger: log,
+	}
+}
+
 func (h *BaseHandler) Success(c *gin.Context, data interface{}, message string) {
+	log := h.GetLogger(c)
+	log.WithFields(map[string]interface{}{
+		"status":  http.StatusOK,
+		"message": "message",
+	}).Info("Successful response")
+
 	c.JSON(http.StatusOK, StandardResponse{
 		Success: true,
 		Message: message,
@@ -55,6 +69,12 @@ func (h *BaseHandler) SuccessWithMeta(c *gin.Context, data interface{}, message 
 }
 
 func (h *BaseHandler) Created(c *gin.Context, data interface{}, message string) {
+	log := h.GetLogger(c)
+	log.WithFields(map[string]interface{}{
+		"status":  http.StatusCreated,
+		"message": message,
+	}).Info("Successfully created record!")
+
 	c.JSON(http.StatusCreated, StandardResponse{
 		Success: true,
 		Message: message,
@@ -151,4 +171,8 @@ func (h *BaseHandler) BindAndValidate(c *gin.Context, obj interface{}) error {
 	}
 
 	return nil
+}
+
+func (h *BaseHandler) GetLogger(c *gin.Context) *logger.Logger {
+	return middleware.GetLoggerFromContext(c)
 }
