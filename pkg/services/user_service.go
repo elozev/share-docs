@@ -27,6 +27,7 @@ type UserServiceInterface interface {
 	CreateUser(email, password, firstName, lastName string, birthDate *time.Time) (*models.User, error)
 	// GetUserByID(userID uuid.UUID) (*models.User, error)
 	GetUserByEmail(email string) (*models.User, error)
+	ValidatePassword(hash, password string) error
 }
 
 type UserService struct {
@@ -68,6 +69,7 @@ func (s *UserService) CreateUser(email, password, firstName, lastName string, bi
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), s.bcryptCost)
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
@@ -99,10 +101,18 @@ func (s *UserService) GetUserByEmail(email string) (*models.User, error) {
 	result := s.db.Where("email = ?", email).First(&user)
 
 	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return nil, ErrUserNotFound
+		}
+
 		return nil, result.Error
 	}
 
 	return user, nil
+}
+
+func (s *UserService) ValidatePassword(hash, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }
 
 func (s *UserService) validateEmail(email string) error {

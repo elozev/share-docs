@@ -28,6 +28,11 @@ type RegisterRequest struct {
 	BirthDate time.Time `json:"birth_date" binding:"omitempty"`
 }
 
+type LoginRequest struct {
+	Email    string `json:"email" binding:"required,email,max=255"`
+	Password string `json:"password" binding:"required,min=8,max=128"`
+}
+
 func (h *UserHandler) Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := h.BindAndValidate(c, &req); err != nil {
@@ -53,6 +58,33 @@ func (h *UserHandler) Register(c *gin.Context) {
 	}
 
 	h.Created(c, user, "Account created successfully")
+}
+
+func (h *UserHandler) Login(c *gin.Context) {
+	var req LoginRequest
+	if err := h.BindAndValidate(c, &req); err != nil {
+		h.BadRequest(c, fmt.Sprintf("Invalid request data: %v", err))
+	}
+
+	user, err := h.userService.GetUserByEmail(req.Email)
+
+	if err != nil {
+		switch err {
+		case services.ErrUserNotFound:
+			h.BadRequest(c, "Invalid email or password")
+		default:
+			h.InternalError(c, "Failed to login user")
+		}
+		return
+	}
+
+	err = h.userService.ValidatePassword(user.Password, req.Password)
+	if err != nil {
+		h.InternalError(c, "Failed validating password")
+		return
+	}
+
+	h.Success(c, user, "")
 }
 
 func (h *UserHandler) GetUserByEmail(c *gin.Context) {

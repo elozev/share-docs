@@ -18,6 +18,7 @@ func setupUserRoutes(r *gin.RouterGroup, userHandler *handlers.UserHandler) {
 	auth := r.Group("/auth")
 	{
 		auth.POST("/register", userHandler.Register)
+		auth.POST("/login", userHandler.Login)
 	}
 
 	user := r.Group("/user")
