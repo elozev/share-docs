@@ -14,7 +14,7 @@ type Logger struct {
 
 type LogConfig struct {
 	Level       string
-	Environmnet string
+	Environment string
 	OutputPath  string
 	ServiceName string
 	Version     string
@@ -24,8 +24,8 @@ func NewLogger(config LogConfig) (*Logger, error) {
 	if config.Level == "" {
 		config.Level = "info"
 	}
-	if config.Environmnet == "" {
-		config.Environmnet = "development"
+	if config.Environment == "" {
+		config.Environment = "development"
 	}
 	if config.OutputPath == "" {
 		config.OutputPath = "stdout"
@@ -37,7 +37,7 @@ func NewLogger(config LogConfig) (*Logger, error) {
 	}
 
 	var encoderConfig zapcore.EncoderConfig
-	if config.Environmnet == "production" {
+	if config.Environment == "production" {
 		encoderConfig = zap.NewProductionEncoderConfig()
 	} else {
 		encoderConfig = zap.NewDevelopmentEncoderConfig()
@@ -51,7 +51,7 @@ func NewLogger(config LogConfig) (*Logger, error) {
 	encoderConfig.StacktraceKey = "stacktrace"
 
 	var encoder zapcore.Encoder
-	if config.Environmnet == "production" {
+	if config.Environment == "production" {
 		encoder = zapcore.NewJSONEncoder(encoderConfig)
 	} else {
 		encoder = zapcore.NewConsoleEncoder(encoderConfig)
