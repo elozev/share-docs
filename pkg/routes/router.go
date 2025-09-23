@@ -38,7 +38,7 @@ func SetupRouter() *gin.Engine {
 
 	logConfig := logger.LogConfig{
 		Level:       util.GetEnv("LOG_LEVEL", "info"),
-		Environmnet: util.GetEnv("ENVIRONMENT", "development"),
+		Environment: util.GetEnv("ENVIRONMENT", "development"),
 		OutputPath:  util.GetEnv("LOG_OUTPUT", "stdout"),
 		ServiceName: "share-docs",
 		Version:     "1.0.0",
