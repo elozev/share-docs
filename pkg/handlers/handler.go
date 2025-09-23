@@ -49,7 +49,7 @@ func (h *BaseHandler) Success(c *gin.Context, data interface{}, message string) 
 	log := h.GetLogger(c)
 	log.WithFields(map[string]interface{}{
 		"status":  http.StatusOK,
-		"message": "message",
+		"message": message,
 	}).Info("Successful response")
 
 	c.JSON(http.StatusOK, StandardResponse{
@@ -60,6 +60,13 @@ func (h *BaseHandler) Success(c *gin.Context, data interface{}, message string) 
 }
 
 func (h *BaseHandler) SuccessWithMeta(c *gin.Context, data interface{}, message string, meta *Meta) {
+	log := h.GetLogger(c)
+
+	log.WithFields(map[string]interface{}{
+		"status":  http.StatusOK,
+		"message": message,
+	}).Info("Succesful response")
+
 	c.JSON(http.StatusOK, StandardResponse{
 		Success: true,
 		Message: message,
@@ -83,9 +90,17 @@ func (h *BaseHandler) Created(c *gin.Context, data interface{}, message string) 
 }
 
 func (h *BaseHandler) failedRequest(c *gin.Context, message string, code int) {
+	log := h.GetLogger(c)
+
 	if code < 400 || code >= 600 {
 		code = http.StatusBadRequest
 	}
+
+	log.WithFields(map[string]interface{}{
+		"status":  code,
+		"message": message,
+	}).Error("Request failed")
+
 	c.JSON(code, ErrorResponse{
 		Success: false,
 		Error:   message,
