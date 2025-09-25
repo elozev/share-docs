@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"share-docs/pkg/util"
 	"time"
 
@@ -68,4 +69,19 @@ func GenerateTokenPair(userID uuid.UUID, email string) (*TokenPair, error) {
 	}
 
 	return tokenPair, nil
+}
+
+func ValidateToken(tokenString string) (*Claims, error) {
+	claims := &Claims{}
+	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return accessTokenSecret, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("claims: %+v\n", claims)
+
+	return claims, err
 }

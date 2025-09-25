@@ -22,8 +22,9 @@ func setupUserRoutes(r *gin.RouterGroup, userHandler *handlers.UserHandler) {
 	}
 
 	user := r.Group("/user")
+	user.Use(middleware.AuthMiddleware(userHandler))
 	{
-		user.GET("/email/:email", userHandler.GetUserByEmail)
+		user.GET("/", userHandler.GetUser)
 	}
 
 	// TODO: add users group

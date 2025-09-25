@@ -4,13 +4,30 @@ import (
 	"fmt"
 	"net/http"
 	"share-docs/pkg/logger"
-	"share-docs/pkg/middleware"
+	"share-docs/pkg/util"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
+
+type BaseHandlerInterface interface {
+	Success(c *gin.Context, data interface{}, message string)
+	SuccessWithMeta(c *gin.Context, data interface{}, message string, meta *Meta)
+	Created(c *gin.Context, data interface{}, message string)
+	BadRequest(c *gin.Context, message string)
+	Unauthorized(c *gin.Context, message string)
+	Forbidden(c *gin.Context, message string)
+	NotFound(c *gin.Context, message string)
+	InternalError(c *gin.Context, message string)
+	ValidationError(c *gin.Context, errors map[string]string)
+	GetUserIDFromContext(c *gin.Context) (uuid.UUID, error)
+	GetUUIDParam(c *gin.Context, param string) (uuid.UUID, error)
+	GetPaginationParams(c *gin.Context) (page, limit int)
+	BindAndValidate(c *gin.Context, obj interface{}) error
+	GetLogger(c *gin.Context) *logger.Logger
+}
 
 type BaseHandler struct {
 	db     *gorm.DB
@@ -189,5 +206,5 @@ func (h *BaseHandler) BindAndValidate(c *gin.Context, obj interface{}) error {
 }
 
 func (h *BaseHandler) GetLogger(c *gin.Context) *logger.Logger {
-	return middleware.GetLoggerFromContext(c)
+	return util.GetLoggerFromContext(c)
 }

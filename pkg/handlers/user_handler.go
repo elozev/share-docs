@@ -106,17 +106,25 @@ func (h *UserHandler) Login(c *gin.Context) {
 	h.Success(c, tokenPair, "")
 }
 
-func (h *UserHandler) GetUserByEmail(c *gin.Context) {
-	email := c.Param("email")
+func (h *UserHandler) GetUser(c *gin.Context) {
+	log := h.GetLogger(c)
+	userID := c.GetString("UserID")
 
-	user, err := h.userService.GetUserByEmail(email)
+	log.WithField("UserID", userID).Info("GetUser:userID")
+
+	if userID == "" {
+		h.InternalError(c, "UserID not found in context")
+		return
+	}
+
+	user, err := h.userService.GetUserByID(userID)
 
 	if err != nil {
 		switch err {
 		case services.ErrInvalidEmail:
 			h.BadRequest(c, "Invalid email format")
 		default:
-			h.InternalError(c, "Failed to retrieve user by email")
+			h.InternalError(c, "Failed to retrieve user by ID")
 		}
 		return
 	}
