@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"share-docs/pkg/auth"
 	"share-docs/pkg/services"
 	"time"
 
@@ -61,6 +62,8 @@ func (h *UserHandler) Register(c *gin.Context) {
 }
 
 func (h *UserHandler) Login(c *gin.Context) {
+	log := h.GetLogger(c)
+
 	var req LoginRequest
 	if err := h.BindAndValidate(c, &req); err != nil {
 		h.BadRequest(c, fmt.Sprintf("Invalid request data: %v", err))
@@ -84,7 +87,23 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	h.Success(c, user, "")
+	// Generate JWT token
+	userID := user.ID
+	userEmail := user.Email
+
+	tokenPair, err := auth.GenerateTokenPair(userID, userEmail)
+
+	if err != nil {
+		log.WithFields(map[string]any{
+			"user_id": userID,
+			"email":   userEmail,
+			"error":   err.Error(),
+		}).Error("JWT failed signature!")
+		h.InternalError(c, "Failed to generate JWT token")
+		return
+	}
+
+	h.Success(c, tokenPair, "")
 }
 
 func (h *UserHandler) GetUserByEmail(c *gin.Context) {
