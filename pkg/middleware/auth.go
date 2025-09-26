@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"share-docs/pkg/auth"
 	"share-docs/pkg/handlers"
 	"strings"
@@ -15,8 +16,8 @@ func AuthMiddleware(h handlers.BaseHandlerInterface) gin.HandlerFunc {
 		authHeader := c.GetHeader("Authorization")
 
 		if authHeader == "" {
-			log.WithField("message", "Missing \"Authorization\" header").Error("Missing \"Authorization\" header")
-			h.Unauthorized(c, "Missing 'Authorization' header")
+			log.WithField("message", "Missing \"Authorization\" header").Error("missing \"Authorization\" header")
+			h.Unauthorized(c, "missing 'Authorization' header")
 			c.Abort()
 			return
 		}
@@ -26,8 +27,8 @@ func AuthMiddleware(h handlers.BaseHandlerInterface) gin.HandlerFunc {
 		claims, err := auth.ValidateToken(tokenString)
 
 		if err != nil {
-			log.WithField("error", err).Error("Failed validating token")
-			h.Unauthorized(c, "Failed validating token")
+			log.WithField("error", err).Error("failed validating token")
+			h.Unauthorized(c, fmt.Sprintf("%s", err.Error()))
 			c.Abort()
 			return
 		}
