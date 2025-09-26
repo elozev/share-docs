@@ -26,6 +26,11 @@ var (
 	refreshTokenSecret = []byte(util.MustGetEnv("JWT_REFRESH_TOKEN_SECRET"))
 )
 
+const (
+	accessTokenExpiration  = 24 * time.Hour
+	refreshTokenExpiration = 7 * 24 * time.Hour
+)
+
 func RefreshAccessToken(c Claims) (*string, error) {
 	accessTokenClaims := &Claims{
 		UserID:    c.UserID,
@@ -33,7 +38,7 @@ func RefreshAccessToken(c Claims) (*string, error) {
 		TokenType: "access_token",
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "share-docs",
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(accessTokenExpiration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
@@ -55,7 +60,7 @@ func GenerateTokenPair(userID uuid.UUID, email string) (*TokenPair, error) {
 		TokenType: "access_token",
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "share-docs",
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(accessTokenExpiration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
@@ -73,7 +78,7 @@ func GenerateTokenPair(userID uuid.UUID, email string) (*TokenPair, error) {
 		TokenType: "refresh_token",
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "share-docs",
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(7 * 24 * time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(refreshTokenExpiration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
