@@ -13,14 +13,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func setupUserRoutes(r *gin.RouterGroup, userHandler *handlers.UserHandler) {
-
+func setupAuthRoutes(r *gin.RouterGroup, authHandler *handlers.AuthHandler) {
 	auth := r.Group("/auth")
 	{
-		auth.POST("/register", userHandler.Register)
-		auth.POST("/login", userHandler.Login)
+		auth.POST("/register", authHandler.Register)
+		auth.POST("/login", authHandler.Login)
 	}
+}
 
+func setupUserRoutes(r *gin.RouterGroup, userHandler *handlers.UserHandler) {
 	user := r.Group("/user")
 	user.Use(middleware.AuthMiddleware(userHandler))
 	{
@@ -58,9 +59,11 @@ func SetupRouter() *gin.Engine {
 	userService := services.NewUserService(database)
 	baseHandler := handlers.NewBaseHandler(database, log)
 	userHandler := handlers.NewUserHandler(userService, *baseHandler)
+	authHandler := handlers.NewAuthHandler(userService, *baseHandler)
 
 	api := r.Group("/api/v1")
 
+	setupAuthRoutes(api, authHandler)
 	setupUserRoutes(api, userHandler)
 	return r
 }
