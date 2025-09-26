@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"share-docs/pkg/auth"
 	"share-docs/pkg/services"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,6 +12,19 @@ import (
 type AuthHandler struct {
 	BaseHandler
 	userService services.UserServiceInterface
+}
+
+type RegisterRequest struct {
+	Email     string    `json:"email" binding:"required,email,max=255"`
+	Password  string    `json:"password" binding:"required,min=8,max=128"`
+	FirstName string    `json:"first_name" binding:"omitempty,max=100"`
+	LastName  string    `json:"last_name" binding:"omitempty,max=100"`
+	BirthDate time.Time `json:"birth_date" binding:"omitempty"`
+}
+
+type LoginRequest struct {
+	Email    string `json:"email" binding:"required,email,max=255"`
+	Password string `json:"password" binding:"required,min=8,max=128"`
 }
 
 func NewAuthHandler(userService services.UserServiceInterface, baseHandler BaseHandler) *AuthHandler {
@@ -90,4 +104,45 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	h.Success(c, tokenPair, "")
+}
+
+type RefreshAccessTokenRequest struct {
+	RefreshToken string `json:"refresh_token" binding:"required"`
+}
+
+func (h *AuthHandler) Refresh(c *gin.Context) {
+	log := h.GetLogger(c)
+
+	var req RefreshAccessTokenRequest
+
+	if err := h.BindAndValidate(c, &req); err != nil {
+		log.WithError(err).Error("Invalid request!")
+		h.BadRequest(c, "Invalid request body! 'refresh_token' required")
+		return
+	}
+
+	log.WithField("refresh_token", req.RefreshToken).Info("Token from request")
+
+	rtc, err := auth.ValidateToken(req.RefreshToken, auth.RefreshToken)
+
+	if err != nil {
+		log.WithError(err).Error("Invalid refresh token!")
+		h.Unauthorized(c, "Refresh token has expired! Login to generate a new one!")
+		return
+	}
+
+	accessToken, err := auth.RefreshAccessToken(*rtc)
+
+	if err != nil {
+		log.WithError(err).Error("Failed to issue new access_token")
+		h.InternalError(c, "Failed to issue new access_token")
+		return
+	}
+
+	var res = &auth.TokenPair{
+		AccessToken:  *accessToken,
+		RefreshToken: req.RefreshToken,
+	}
+
+	h.Success(c, res, "Successfully refreshed token")
 }

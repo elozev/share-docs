@@ -24,7 +24,7 @@ func AuthMiddleware(h handlers.BaseHandlerInterface) gin.HandlerFunc {
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
-		claims, err := auth.ValidateToken(tokenString)
+		claims, err := auth.ValidateToken(tokenString, auth.AccessToken)
 
 		if err != nil {
 			log.WithField("error", err).Error("failed validating token")

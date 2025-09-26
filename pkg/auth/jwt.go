@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"fmt"
+	"errors"
 	"share-docs/pkg/util"
 	"time"
 
@@ -25,6 +25,28 @@ var (
 	accessTokenSecret  = []byte(util.MustGetEnv("JWT_ACCESS_TOKEN_SECRET"))
 	refreshTokenSecret = []byte(util.MustGetEnv("JWT_REFRESH_TOKEN_SECRET"))
 )
+
+func RefreshAccessToken(c Claims) (*string, error) {
+	accessTokenClaims := &Claims{
+		UserID:    c.UserID,
+		Email:     c.Email,
+		TokenType: "access_token",
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    "share-docs",
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+
+	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS512, accessTokenClaims)
+	accessTokenSigned, err := accessToken.SignedString(accessTokenSecret)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &accessTokenSigned, err
+}
 
 func GenerateTokenPair(userID uuid.UUID, email string) (*TokenPair, error) {
 	accessTokenClaims := &Claims{
@@ -71,17 +93,28 @@ func GenerateTokenPair(userID uuid.UUID, email string) (*TokenPair, error) {
 	return tokenPair, nil
 }
 
-func ValidateToken(tokenString string) (*Claims, error) {
+type Token int
+
+const (
+	AccessToken Token = iota
+	RefreshToken
+)
+
+func ValidateToken(tokenString string, tokenType Token) (*Claims, error) {
 	claims := &Claims{}
 	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return accessTokenSecret, nil
+		if tokenType == AccessToken {
+			return accessTokenSecret, nil
+		} else if tokenType == RefreshToken {
+			return refreshTokenSecret, nil
+		} else {
+			return nil, errors.New("Unsupported JWT token type")
+		}
 	})
 
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Printf("claims: %+v\n", claims)
 
 	return claims, err
 }
