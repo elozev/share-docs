@@ -74,7 +74,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	if err != nil {
 		switch err {
 		case services.ErrUserNotFound:
-			h.BadRequest(c, "Invalid email or password")
+			h.Unauthorized(c, "Invalid email or password")
 		default:
 			h.InternalError(c, "Failed to login user")
 		}
