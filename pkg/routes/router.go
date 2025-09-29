@@ -28,8 +28,14 @@ func setupUserRoutes(r *gin.RouterGroup, userHandler *handlers.UserHandler) {
 	{
 		user.GET("/", userHandler.GetUser)
 	}
+}
 
-	// TODO: add users group
+func setupDocumentRoutes(r *gin.RouterGroup, documentHandler *handlers.DocHandler) {
+	docs := r.Group("/docs")
+	docs.Use(middleware.AuthMiddleware(documentHandler))
+	{
+		docs.POST("/", documentHandler.CreateDocument)
+	}
 }
 
 // SetupRouter configures the Gin router with all routes
@@ -58,13 +64,18 @@ func SetupRouter() *gin.Engine {
 	database := db.Connect()
 
 	userService := services.NewUserService(database)
+	docService := services.NewDocumentService(database)
+	storageService := services.NewStorageService("local", log)
+
 	baseHandler := handlers.NewBaseHandler(database, log)
 	userHandler := handlers.NewUserHandler(userService, *baseHandler)
 	authHandler := handlers.NewAuthHandler(userService, *baseHandler)
+	docHandler := handlers.NewDocHandler(*docService, *storageService, *baseHandler)
 
 	api := r.Group("/api/v1")
 
 	setupAuthRoutes(api, authHandler)
 	setupUserRoutes(api, userHandler)
+	setupDocumentRoutes(api, docHandler)
 	return r
 }

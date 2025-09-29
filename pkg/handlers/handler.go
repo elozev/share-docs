@@ -205,6 +205,14 @@ func (h *BaseHandler) BindAndValidate(c *gin.Context, obj interface{}) error {
 	return nil
 }
 
+func (h *BaseHandler) BindFormAndValidate(c *gin.Context, obj interface{}) error {
+	if err := c.ShouldBind(obj); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (h *BaseHandler) GetLogger(c *gin.Context) *logger.Logger {
 	return util.GetLoggerFromContext(c)
 }
