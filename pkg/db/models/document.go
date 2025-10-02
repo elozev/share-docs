@@ -18,8 +18,8 @@ type Document struct {
 
 	// Metadata
 	Title       *string `gorm:"size:255" json:"title"`
-	Description *string `gorm:"size:1000" json: "description"`
-	Tags        string  `gorm:"size:500" json: "tags"`
+	Description *string `gorm:"size:1000" json:"description"`
+	Tags        string  `gorm:"size:500" json:"tags"`
 
 	// Relationships
 	UserID uuid.UUID `gorm:"type:uuid;not null;index" json:"-"`

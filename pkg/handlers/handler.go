@@ -154,14 +154,17 @@ func (h *BaseHandler) ValidationError(c *gin.Context, errors map[string]string) 
 }
 
 func (h *BaseHandler) GetUserIDFromContext(c *gin.Context) (uuid.UUID, error) {
-	userID, exists := c.Get("userID")
+	userID := c.GetString("UserID")
 
-	if !exists {
-		return uuid.Nil, fmt.Errorf("user ID not found in contexts")
-	}
+	// if !exists {
+	// 	return uuid.Nil, fmt.Errorf("user ID not found in contexts")
+	// }
 
-	id, ok := userID.(uuid.UUID)
-	if !ok {
+	fmt.Println("GetUserIDFromContext: userID", userID)
+
+	id, err := uuid.Parse(userID)
+
+	if err != nil {
 		return uuid.Nil, fmt.Errorf("invalid user ID format")
 	}
 

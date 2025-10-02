@@ -86,6 +86,7 @@ func (s *UserService) CreateUser(email, password, firstName, lastName string, bi
 	}
 
 	if result := s.db.Create(user); result.Error != nil {
+		// TODO: use logger
 		return nil, fmt.Errorf("failed to create a user: %v", result.Error)
 	}
 

@@ -70,5 +70,21 @@ func (h *DocHandler) CreateDocument(c *gin.Context) {
 		return
 	}
 
-	h.Created(c, so, "Successfully created a document!")
+	userID, err := h.GetUserIDFromContext(c)
+
+	if err != nil {
+		log.WithError(err).Error("Failed getting UserID")
+		h.InternalError(c, fmt.Sprintf("Failed getting UserID!"))
+		return
+	}
+
+	doc, err := h.documentService.CreateDocument(userID, *so)
+
+	if err != nil {
+		log.WithError(err).Error("Failed creating document reference")
+		h.InternalError(c, fmt.Sprintf("Failed creating document reference"))
+		return
+	}
+
+	h.Created(c, doc, "Successfully created a document!")
 }
