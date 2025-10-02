@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"mime/multipart"
+	"os"
 	"share-docs/pkg/logger"
 	"share-docs/pkg/storage"
 	"share-docs/pkg/util"
@@ -29,6 +30,12 @@ func NewStorageService(storageType string, logger *logger.Logger) *StorageServic
 		panic(fmt.Sprintf("storage backend %s not supported", storageType))
 	} else if storageType == "local" {
 		path := util.MustGetEnv("STORAGE_LOCAL_PATH")
+
+		_, err := os.Stat(path)
+
+		if os.IsNotExist(err) {
+			panic(err)
+		}
 
 		sb = storage.NewLocalStorage(path, *logger)
 	}
