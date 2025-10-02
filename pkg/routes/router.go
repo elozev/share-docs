@@ -65,6 +65,7 @@ func SetupRouter() *gin.Engine {
 
 	userService := services.NewUserService(database)
 	docService := services.NewDocumentService(database)
+	// TODO: replace local with env
 	storageService := services.NewStorageService("local", log)
 
 	baseHandler := handlers.NewBaseHandler(database, log)
