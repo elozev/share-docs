@@ -2,8 +2,11 @@ package storage
 
 import (
 	"errors"
+	"fmt"
 	"mime/multipart"
 	"share-docs/pkg/logger"
+	"strings"
+	"time"
 )
 
 type StorageBackend struct {
@@ -22,7 +25,23 @@ var (
 )
 
 type StorageBackendInterface interface {
-	Upload(file multipart.File, object string) error
+	Upload(file multipart.File, object string) (*StorageObject, error)
 	// Get(object string) (*StorageObject, error)
 	// Delete(object string) error
+}
+
+func (s *StorageBackend) normaliseFilename(name string) string {
+	lc := strings.ToLower(name)
+
+	splitFile := strings.Split(lc, ".")
+
+	timestamp := time.Now().Unix()
+	noWhiteSpace := strings.ReplaceAll(fmt.Sprintf("%s-%d", splitFile[0], timestamp), " ", "-")
+
+	res := strings.Join([]string{
+		noWhiteSpace,
+		splitFile[1],
+	}, ".")
+
+	return res
 }

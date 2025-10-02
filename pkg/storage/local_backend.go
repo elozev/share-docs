@@ -6,6 +6,8 @@ import (
 	"mime/multipart"
 	"os"
 	"share-docs/pkg/logger"
+
+	"github.com/gabriel-vasile/mimetype"
 )
 
 type LocalStorage struct {
@@ -21,34 +23,46 @@ func NewLocalStorage(uploadPath string, logger logger.Logger) *LocalStorage {
 	}
 }
 
-func (s *LocalStorage) Upload(file multipart.File, object string) error {
-	fileName := fmt.Sprintf("%s/%s", s.UploadPath, object)
+func (s *LocalStorage) Upload(file multipart.File, object string) (*StorageObject, error) {
+	fileName := fmt.Sprintf("%s/%s", s.UploadPath, s.normaliseFilename(object))
 	fmt.Printf("Will create file: %s\n", fileName)
 
 	f, err := os.Create(fileName)
 	defer f.Close()
 
 	if err != nil {
-		return err
+		return nil, err
+	}
+
+	mimeType, err := mimetype.DetectReader(f)
+
+	if err != nil {
+		return nil, err
 	}
 
 	filebytes, err := io.ReadAll(file)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	bytesWritten, err := f.Write(filebytes)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if bytesWritten == 0 {
-		return ErrNoBytesWritten
+		return nil, ErrNoBytesWritten
+	}
+
+	so := &StorageObject{
+		Name:     fileName,
+		Path:     object,
+		MimeType: mimeType.String(),
 	}
 
 	s.Logger.WithField("bytes_written", bytesWritten).Info("Bytes written")
 
-	return nil
+	return so, nil
 }

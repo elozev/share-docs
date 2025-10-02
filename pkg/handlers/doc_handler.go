@@ -62,7 +62,7 @@ func (h *DocHandler) CreateDocument(c *gin.Context) {
 		return
 	}
 
-	err = h.storageService.UploadDocument(f, req.File.Filename)
+	so, err := h.storageService.UploadDocument(f, req.File.Filename)
 
 	if err != nil {
 		log.WithError(err).Error("Failed uploading document")
@@ -70,5 +70,5 @@ func (h *DocHandler) CreateDocument(c *gin.Context) {
 		return
 	}
 
-	h.Created(c, nil, "Successfully created a document!")
+	h.Created(c, so, "Successfully created a document!")
 }
