@@ -27,15 +27,14 @@ func NewDocumentService(db *gorm.DB) *DocumentService {
 }
 
 func (s *DocumentService) CreateDocument(userID uuid.UUID, o storage.StorageObject) (*models.Document, error) {
+
 	document := &models.Document{
 
 		OriginalFilename: o.Name,
 		FilePath:         o.Path,
-		// TODO: get from storageobject
-		FileSize: 0,
-		MimeType: o.MimeType,
-		// TODO: generate and store in storageobject
-		FileHash: "",
+		FileSize:         o.FileSizeBytes,
+		MimeType:         o.MimeType,
+		FileHash:         o.FileHash,
 
 		UserID: userID,
 	}

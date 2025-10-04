@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"crypto/md5"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -56,10 +57,14 @@ func (s *LocalStorage) Upload(file multipart.File, object string) (*StorageObjec
 		return nil, ErrNoBytesWritten
 	}
 
+	hash := md5.Sum(filebytes)
+
 	so := &StorageObject{
-		Name:     fileName,
-		Path:     object,
-		MimeType: mimeType.String(),
+		Name:          fileName,
+		Path:          object,
+		MimeType:      mimeType.String(),
+		FileSizeBytes: int64(len(filebytes)),
+		FileHash:      fmt.Sprintf("%x", hash),
 	}
 
 	s.Logger.WithField("bytes_written", bytesWritten).Info("Bytes written")

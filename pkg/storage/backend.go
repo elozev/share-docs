@@ -15,9 +15,11 @@ type StorageBackend struct {
 }
 
 type StorageObject struct {
-	Name     string
-	Path     string
-	MimeType string
+	Name          string
+	Path          string
+	MimeType      string
+	FileSizeBytes int64
+	FileHash      string
 }
 
 var (
