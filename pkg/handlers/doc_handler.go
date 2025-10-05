@@ -24,6 +24,7 @@ func NewDocHandler(ds services.DocumentService, ss services.StorageService, bs B
 
 type DocHandlerInterface interface {
 	CreateDocument(c *gin.Context)
+	GetDocument(c *gin.Context)
 }
 
 // as a user, I should be able to upload a document
@@ -87,4 +88,29 @@ func (h *DocHandler) CreateDocument(c *gin.Context) {
 	}
 
 	h.Created(c, doc, "Successfully created a document!")
+}
+
+func (h *DocHandler) GetDocument(c *gin.Context) {
+	log := h.GetLogger(c)
+	documentId := c.Param("id")
+
+	document, err := h.documentService.GetDocument(documentId)
+
+	if err != nil {
+		log.WithError(err).Error("Failed to retrieve document")
+
+		switch err {
+		case services.ErrDocumentNotFound:
+			h.NotFound(c, "Document not found")
+			return
+		case services.ErrInvalidId:
+			h.BadRequest(c, "Invalid document ID")
+			return
+		default:
+			h.InternalError(c, "Internal server error")
+			return
+		}
+	}
+
+	h.Success(c, document, "document found")
 }

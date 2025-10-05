@@ -34,6 +34,7 @@ func setupDocumentRoutes(r *gin.RouterGroup, documentHandler *handlers.DocHandle
 	docs := r.Group("/docs")
 	docs.Use(middleware.AuthMiddleware(documentHandler))
 	{
+		docs.GET("/:id", documentHandler.GetDocument)
 		docs.POST("/", documentHandler.CreateDocument)
 	}
 }
