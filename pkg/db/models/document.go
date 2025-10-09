@@ -32,3 +32,8 @@ func (d *Document) BeforeCreate(tx *gorm.DB) error {
 	}
 	return nil
 }
+
+func (d *Document) AfterCreate(tx *gorm.DB) error {
+	// TODO: send message to pubsub, clear cache, etc
+	return nil
+}
