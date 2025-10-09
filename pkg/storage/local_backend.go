@@ -24,9 +24,14 @@ func NewLocalStorage(uploadPath string, logger logger.Logger) *LocalStorage {
 	}
 }
 
-func (s *LocalStorage) Upload(file multipart.File, object string) (*StorageObject, error) {
-	fileName := fmt.Sprintf("%s/%s", s.UploadPath, s.normaliseFilename(object))
-	fmt.Printf("Will create file: %s\n", fileName)
+func (s *LocalStorage) Upload(file multipart.File, path string, filename string) (*StorageObject, error) {
+	userUploadPath := fmt.Sprintf("%s/%s", s.UploadPath, path)
+	fileName := fmt.Sprintf("%s/%s", userUploadPath, s.normaliseFilename(filename))
+
+	err := os.MkdirAll(userUploadPath, os.ModePerm)
+	if err != nil {
+		return nil, err
+	}
 
 	f, err := os.Create(fileName)
 	defer f.Close()
@@ -61,13 +66,11 @@ func (s *LocalStorage) Upload(file multipart.File, object string) (*StorageObjec
 
 	so := &StorageObject{
 		Name:          fileName,
-		Path:          object,
+		Path:          filename,
 		MimeType:      mimeType.String(),
 		FileSizeBytes: int64(len(filebytes)),
 		FileHash:      fmt.Sprintf("%x", hash),
 	}
-
-	s.Logger.WithField("bytes_written", bytesWritten).Info("Bytes written")
 
 	return so, nil
 }

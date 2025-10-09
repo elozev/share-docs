@@ -27,7 +27,7 @@ var (
 )
 
 type StorageBackendInterface interface {
-	Upload(file multipart.File, object string) (*StorageObject, error)
+	Upload(file multipart.File, path string, filename string) (*StorageObject, error)
 	// Get(object string) (*StorageObject, error)
 	// Delete(object string) error
 }

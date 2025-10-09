@@ -45,8 +45,8 @@ func NewStorageService(storageType string, logger *logger.Logger) *StorageServic
 	}
 }
 
-func (s *StorageService) UploadDocument(file multipart.File, object string) (*storage.StorageObject, error) {
-	so, err := s.sb.Upload(file, object)
+func (s *StorageService) UploadDocument(file multipart.File, path string, filename string) (*storage.StorageObject, error) {
+	so, err := s.sb.Upload(file, path, filename)
 
 	if err != nil {
 		return nil, err

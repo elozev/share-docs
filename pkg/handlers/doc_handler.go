@@ -52,7 +52,13 @@ func (h *DocHandler) CreateDocument(c *gin.Context) {
 		return
 	}
 
-	log.WithField("file_size", req.File.Size).Info("Uploaded file size")
+	userID, err := h.GetUserIDFromContext(c)
+
+	if err != nil {
+		log.WithError(err).Error("Failed getting UserID")
+		h.Unauthorized(c, fmt.Sprintf("Failed getting UserID!"))
+		return
+	}
 
 	f, err := req.File.Open()
 	defer f.Close()
@@ -63,19 +69,13 @@ func (h *DocHandler) CreateDocument(c *gin.Context) {
 		return
 	}
 
-	so, err := h.storageService.UploadDocument(f, req.File.Filename)
+	filepath := fmt.Sprintf("%s/", userID)
+
+	so, err := h.storageService.UploadDocument(f, filepath, req.File.Filename)
 
 	if err != nil {
 		log.WithError(err).Error("Failed uploading document")
 		h.InternalError(c, fmt.Sprintf("Failed uploading document!"))
-		return
-	}
-
-	userID, err := h.GetUserIDFromContext(c)
-
-	if err != nil {
-		log.WithError(err).Error("Failed getting UserID")
-		h.InternalError(c, fmt.Sprintf("Failed getting UserID!"))
 		return
 	}
 
