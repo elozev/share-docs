@@ -10,6 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// TODO: do not json serialise documents on the model level, but rather here
+
 type DocumentServiceInterface interface {
 	// TODO: add parameters
 	CreateDocument(userID uuid.UUID, o storage.StorageObject) (*models.Document, error)

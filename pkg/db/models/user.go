@@ -8,16 +8,17 @@ import (
 )
 
 type User struct {
-	gorm.Model `json:"-"`
-	ID         uuid.UUID `gorm:"type:uuid,primaryKey;default;gen_random_uuid()" json:"id"`
+	gorm.Model
+	ID uuid.UUID `gorm:"type:uuid,primaryKey;default;gen_random_uuid()"`
 
-	Email      string     `gorm:"unique" json:"email"`
-	Password   string     `gorm:"not null, size:255" json:"-"`
-	FirstName  string     `json:"first_name"`
-	LastName   string     `json:"last_name"`
-	BirthDate  *time.Time `json:"birth_date"`
-	IsActive   bool       `json:"is_active"`
-	IsVerified bool       `json:"is_verified"`
+	Email      string `gorm:"unique"`
+	Password   string `gorm:"not null, size:255"`
+	FirstName  string
+	LastName   string
+	BirthDate  *time.Time
+	IsActive   bool
+	IsVerified bool
+	// TODO: add last logged in at
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) error {
