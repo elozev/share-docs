@@ -7,7 +7,7 @@ import (
 
 type Document struct {
 	gorm.Model `json:"-"`
-	ID         uuid.UUID `json:"id", gorm:"type:uuid,primaryKey;default;gen_random_uuid()"`
+	ID         uuid.UUID `json:"id" gorm:"type:uuid,primaryKey;default;gen_random_uuid()"`
 
 	// File information
 	OriginalFilename string `json:"original_filename"`
