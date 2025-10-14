@@ -26,7 +26,7 @@ func NewLocalStorage(uploadPath string, logger logger.Logger) *LocalStorage {
 
 func (s *LocalStorage) Upload(file multipart.File, path string, filename string) (*StorageObject, error) {
 	userUploadPath := fmt.Sprintf("%s/%s", s.UploadPath, path)
-	fileName := fmt.Sprintf("%s/%s", userUploadPath, s.normaliseFilename(filename))
+	fileName := fmt.Sprintf("%s%s", userUploadPath, s.normaliseFilename(filename))
 
 	err := os.MkdirAll(userUploadPath, os.ModePerm)
 	if err != nil {
