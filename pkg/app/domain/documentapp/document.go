@@ -15,6 +15,7 @@ type Document struct {
 	Title       *string `json:"title"`
 	Description *string `json:"description"`
 	Tags        *string `json:"tags"`
+	IsPublic    bool    `json:"is_public"`
 
 	User userapp.User `json:"user"`
 }
@@ -29,6 +30,7 @@ func ToAppDocument(md models.Document) Document {
 		Title:       md.Title,
 		Description: md.Description,
 		Tags:        md.Tags,
+		IsPublic:    md.IsPublic,
 
 		User: userapp.ToAppUser(md.User),
 	}

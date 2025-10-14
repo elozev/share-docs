@@ -20,6 +20,7 @@ type Document struct {
 	Title       *string `gorm:"size:255"`
 	Description *string `gorm:"size:1000"`
 	Tags        *string `gorm:"size:500"`
+	IsPublic    bool    `gorm:"type:bool"`
 
 	// Relationships
 	UserID uuid.UUID `gorm:"type:uuid;not null;index"`
