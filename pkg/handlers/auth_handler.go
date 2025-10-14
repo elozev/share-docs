@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type AuthHandler struct {
@@ -81,14 +82,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	err = h.userService.ValidatePassword(user.Password, req.Password)
+	user, err = h.userService.LoginWithEmailPassword(req.Email, req.Password)
 	if err != nil {
 		h.InternalError(c, "Failed validating password")
 		return
 	}
 
 	// Generate JWT token
-	userID := user.ID
+	userID := uuid.MustParse(user.ID)
 	userEmail := user.Email
 
 	tokenPair, err := auth.GenerateTokenPair(userID, userEmail)

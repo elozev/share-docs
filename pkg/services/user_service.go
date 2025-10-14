@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"share-docs/pkg/app/domain/userapp"
 	"share-docs/pkg/db/models"
 	"strings"
 	"time"
@@ -15,6 +16,7 @@ import (
 
 var (
 	ErrUserNotFound       = errors.New("user not found")
+	ErrFailedToCreateUser = errors.New("failed to create user")
 	ErrEmailAlreadyExists = errors.New("email already exists")
 	ErrInvalidCredentials = errors.New("invalid email or password")
 	ErrAccountLocked      = errors.New("account is temporarily locked")
@@ -25,10 +27,10 @@ var (
 )
 
 type UserServiceInterface interface {
-	CreateUser(email, password, firstName, lastName string, birthDate *time.Time) (*models.User, error)
-	GetUserByID(userID string) (*models.User, error)
-	GetUserByEmail(email string) (*models.User, error)
-	ValidatePassword(hash, password string) error
+	CreateUser(email, password, firstName, lastName string, birthDate *time.Time) (*userapp.User, error)
+	GetUserByID(userID string) (*userapp.User, error)
+	GetUserByEmail(email string) (*userapp.User, error)
+	LoginWithEmailPassword(email, password string) (*userapp.User, error)
 }
 
 type UserService struct {
@@ -49,7 +51,7 @@ func NewUserService(db *gorm.DB) *UserService {
 	}
 }
 
-func (s *UserService) CreateUser(email, password, firstName, lastName string, birthDate *time.Time) (*models.User, error) {
+func (s *UserService) CreateUser(email, password, firstName, lastName string, birthDate *time.Time) (*userapp.User, error) {
 	if err := s.validateEmail(email); err != nil {
 		return nil, err
 	}
@@ -66,7 +68,7 @@ func (s *UserService) CreateUser(email, password, firstName, lastName string, bi
 	}
 
 	if res.Error != gorm.ErrRecordNotFound {
-		return nil, fmt.Errorf("error finding a user with %s email: %w", email, res.Error)
+		return nil, fmt.Errorf("error querying for a user with %s email: %w", email, res.Error)
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), s.bcryptCost)
@@ -75,7 +77,7 @@ func (s *UserService) CreateUser(email, password, firstName, lastName string, bi
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	user := &models.User{
+	modelUser := &models.User{
 		Email:      email,
 		Password:   string(hashedPassword),
 		IsActive:   true,
@@ -85,24 +87,24 @@ func (s *UserService) CreateUser(email, password, firstName, lastName string, bi
 		BirthDate:  birthDate,
 	}
 
-	if result := s.db.Create(user); result.Error != nil {
-		// TODO: use logger
-		return nil, fmt.Errorf("failed to create a user: %v", result.Error)
+	if result := s.db.Create(modelUser); result.Error != nil {
+		return nil, ErrFailedToCreateUser
 	}
 
-	return user, nil
+	user := userapp.ToAppUser(*modelUser)
+	return &user, nil
 }
 
-func (s *UserService) GetUserByID(userIDString string) (*models.User, error) {
+func (s *UserService) GetUserByID(userIDString string) (*userapp.User, error) {
 	userID, err := uuid.Parse(userIDString)
 
 	if err != nil {
 		return nil, err
 	}
 
-	var user *models.User
+	var modelUser *models.User
 
-	result := s.db.First(&user, userID)
+	result := s.db.First(&modelUser, userID)
 
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
@@ -112,17 +114,18 @@ func (s *UserService) GetUserByID(userIDString string) (*models.User, error) {
 		return nil, result.Error
 	}
 
-	return user, nil
+	user := userapp.ToAppUser(*modelUser)
+	return &user, nil
 }
 
-func (s *UserService) GetUserByEmail(email string) (*models.User, error) {
+func (s *UserService) GetUserByEmail(email string) (*userapp.User, error) {
 	if err := s.validateEmail(email); err != nil {
 		return nil, ErrInvalidEmail
 	}
 
-	var user *models.User
+	var modelUser *models.User
 
-	result := s.db.Where("email = ?", email).First(&user)
+	result := s.db.Where("email = ?", email).First(&modelUser)
 
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
@@ -132,7 +135,30 @@ func (s *UserService) GetUserByEmail(email string) (*models.User, error) {
 		return nil, result.Error
 	}
 
-	return user, nil
+	user := userapp.ToAppUser(*modelUser)
+	return &user, nil
+}
+
+func (s *UserService) LoginWithEmailPassword(email, password string) (*userapp.User, error) {
+	var modelUser *models.User
+
+	result := s.db.Where("email = ?", email).First(&modelUser)
+
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return nil, ErrUserNotFound
+		}
+
+		return nil, result.Error
+	}
+
+	err := bcrypt.CompareHashAndPassword([]byte(modelUser.Password), []byte(password))
+	if err != nil {
+		return nil, err
+	}
+
+	user := userapp.ToAppUser(*modelUser)
+	return &user, nil
 }
 
 func (s *UserService) ValidatePassword(hash, password string) error {

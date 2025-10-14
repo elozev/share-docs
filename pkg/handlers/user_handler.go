@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"share-docs/pkg/app/domain/userapp"
 	"share-docs/pkg/services"
 
 	"github.com/gin-gonic/gin"
@@ -42,6 +41,5 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 		return
 	}
 
-	appUser := userapp.ToAppUser(*user)
-	h.Success(c, appUser, "")
+	h.Success(c, user, "")
 }
