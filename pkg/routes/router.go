@@ -35,6 +35,7 @@ func setupDocumentRoutes(r *gin.RouterGroup, documentHandler *handlers.DocHandle
 	docs.Use(middleware.AuthMiddleware(documentHandler))
 	{
 		docs.GET("/:id", documentHandler.GetDocument)
+		docs.GET("/:id/file", documentHandler.GetFile)
 		docs.POST("/", documentHandler.CreateDocument)
 	}
 }
@@ -75,9 +76,9 @@ func SetupRouter() *gin.Engine {
 	docHandler := handlers.NewDocHandler(*docService, *storageService, *baseHandler)
 
 	api := r.Group("/api/v1")
-
 	setupAuthRoutes(api, authHandler)
 	setupUserRoutes(api, userHandler)
 	setupDocumentRoutes(api, docHandler)
+
 	return r
 }
