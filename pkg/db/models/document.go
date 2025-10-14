@@ -7,23 +7,23 @@ import (
 
 type Document struct {
 	gorm.Model `json:"-"`
-	ID         uuid.UUID `json:"id" gorm:"type:uuid,primaryKey;default;gen_random_uuid()"`
+	ID         uuid.UUID `gorm:"type:uuid,primaryKey;default;gen_random_uuid()"`
 
 	// File information
-	OriginalFilename string `json:"original_filename"`
-	FilePath         string `json:"file_path"`
-	FileSize         int64  `json:"file_size"`
-	MimeType         string `json:"mime_type"`
-	FileHash         string `json:"file_hash"`
+	OriginalFilename string
+	FilePath         string
+	FileSize         int64
+	MimeType         string
+	FileHash         string
 
 	// Metadata
-	Title       *string `gorm:"size:255" json:"title"`
-	Description *string `gorm:"size:1000" json:"description"`
-	Tags        string  `gorm:"size:500" json:"tags"`
+	Title       *string `gorm:"size:255"`
+	Description *string `gorm:"size:1000"`
+	Tags        *string `gorm:"size:500"`
 
 	// Relationships
-	UserID uuid.UUID `gorm:"type:uuid;not null;index" json:"-"`
-	User   User      `gorm:"foreignKey:UserID" json:"user"`
+	UserID uuid.UUID `gorm:"type:uuid;not null;index"`
+	User   User      `gorm:"foreignKey:UserID"`
 }
 
 func (d *Document) BeforeCreate(tx *gorm.DB) error {

@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"share-docs/pkg/app/domain/documentapp"
 	"share-docs/pkg/db/models"
 	"share-docs/pkg/storage"
 
@@ -14,8 +15,8 @@ import (
 
 type DocumentServiceInterface interface {
 	// TODO: add parameters
-	CreateDocument(userID uuid.UUID, o storage.StorageObject) (*models.Document, error)
-	GetDocument(documentID uuid.UUID) (*models.Document, error)
+	CreateDocument(userID uuid.UUID, o storage.StorageObject) (*documentapp.Document, error)
+	GetDocument(documentID uuid.UUID) (*documentapp.Document, error)
 }
 
 var (
@@ -32,7 +33,7 @@ func NewDocumentService(db *gorm.DB) *DocumentService {
 	}
 }
 
-func (s *DocumentService) CreateDocument(userID uuid.UUID, o storage.StorageObject) (*models.Document, error) {
+func (s *DocumentService) CreateDocument(userID uuid.UUID, o storage.StorageObject) (*documentapp.Document, error) {
 	document := &models.Document{
 		OriginalFilename: o.Name,
 		FilePath:         o.Path,
@@ -48,10 +49,11 @@ func (s *DocumentService) CreateDocument(userID uuid.UUID, o storage.StorageObje
 		return nil, fmt.Errorf("failed to create a document")
 	}
 
-	return document, nil
+	doc := documentapp.ToAppDocument(*document)
+	return &doc, nil
 }
 
-func (s *DocumentService) GetDocument(documentStringID string) (*models.Document, error) {
+func (s *DocumentService) GetDocument(documentStringID string) (*documentapp.Document, error) {
 	documentID, err := uuid.Parse(documentStringID)
 
 	if err != nil {
@@ -70,5 +72,6 @@ func (s *DocumentService) GetDocument(documentStringID string) (*models.Document
 		return nil, err
 	}
 
-	return document, nil
+	doc := documentapp.ToAppDocument(*document)
+	return &doc, nil
 }
