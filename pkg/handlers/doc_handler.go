@@ -118,6 +118,11 @@ func (h *DocHandler) GetFile(c *gin.Context) {
 		return
 	}
 
+	if !document.IsPublic {
+		h.Unauthorized(c, "document is not public")
+		return
+	}
+
 	c.File(document.OriginalFilename)
 }
 
