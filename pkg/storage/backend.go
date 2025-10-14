@@ -20,6 +20,7 @@ type StorageObject struct {
 	MimeType      string
 	FileSizeBytes int64
 	FileHash      string
+	IsPublic      bool
 }
 
 var (

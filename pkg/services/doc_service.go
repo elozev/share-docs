@@ -40,6 +40,7 @@ func (s *DocumentService) CreateDocument(userID uuid.UUID, o storage.StorageObje
 		FileSize:         o.FileSizeBytes,
 		MimeType:         o.MimeType,
 		FileHash:         o.FileHash,
+		IsPublic:         o.IsPublic,
 
 		UserID: userID,
 	}

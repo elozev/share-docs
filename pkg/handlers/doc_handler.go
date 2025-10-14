@@ -37,7 +37,8 @@ type DocHandlerInterface interface {
 // 4. return document reference
 
 type CreateDocumentRequest struct {
-	File *multipart.FileHeader `form:"file" binding:"required"`
+	File     *multipart.FileHeader `form:"file" binding:"required"`
+	IsPublic bool                  `form:"is_public"`
 }
 
 func (h *DocHandler) CreateDocument(c *gin.Context) {
@@ -80,6 +81,9 @@ func (h *DocHandler) CreateDocument(c *gin.Context) {
 		return
 	}
 
+	(*so).IsPublic = req.IsPublic
+
+	log.WithField("storage_object", so).Info("Storage object debug")
 	doc, err := h.documentService.CreateDocument(userID, *so)
 
 	if err != nil {
@@ -115,7 +119,6 @@ func (h *DocHandler) GetFile(c *gin.Context) {
 	}
 
 	c.File(document.OriginalFilename)
-	// h.Success(c, nil,)
 }
 
 func (h *DocHandler) handlerRetrieveDocumentError(c *gin.Context, err error) {
