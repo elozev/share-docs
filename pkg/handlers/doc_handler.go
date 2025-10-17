@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"mime/multipart"
+	"share-docs/pkg/app/domain/documentapp"
 	"share-docs/pkg/services"
 
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,7 @@ type DocHandlerInterface interface {
 	CreateDocument(c *gin.Context)
 	GetDocument(c *gin.Context)
 	GetFile(c *gin.Context)
+	UpdateDocument(c *gin.Context)
 }
 
 // as a user, I should be able to upload a document
@@ -141,4 +143,37 @@ func (h *DocHandler) handlerRetrieveDocumentError(c *gin.Context, err error) {
 		h.InternalError(c, "Internal server error")
 		return
 	}
+}
+
+func (h *DocHandler) UpdateDocument(c *gin.Context) {
+	log := h.GetLogger(c)
+
+	_, err := h.documentService.GetDocument(c.Param("id"))
+
+	if err != nil {
+		h.handlerRetrieveDocumentError(c, err)
+		return
+	}
+
+	var ud = documentapp.UpdateDocument{}
+	if err := h.BindAndValidate(c, &ud); err != nil {
+		h.BadRequest(c, fmt.Sprintf("failed to validate request: %v", err))
+		return
+	}
+
+	if !ud.HasAtLeastOneField() {
+		h.BadRequest(c, "no fields to update")
+		return
+	}
+
+	doc, err := h.documentService.UpdateDocument(c.Param("id"), ud)
+
+	if err != nil {
+		h.handlerRetrieveDocumentError(c, err)
+		return
+	}
+
+	log.WithField("update_request", ud).Info("Updated object request")
+
+	h.Success(c, doc, "updated")
 }

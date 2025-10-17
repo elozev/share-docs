@@ -17,6 +17,7 @@ type DocumentServiceInterface interface {
 	// TODO: add parameters
 	CreateDocument(userID uuid.UUID, o storage.StorageObject) (*documentapp.Document, error)
 	GetDocument(documentID uuid.UUID) (*documentapp.Document, error)
+	UpdateDocument(documentUpdate documentapp.UpdateDocument) (*documentapp.Document, error)
 }
 
 var (
@@ -75,4 +76,21 @@ func (s *DocumentService) GetDocument(documentStringID string) (*documentapp.Doc
 
 	doc := documentapp.ToAppDocument(*document)
 	return &doc, nil
+}
+
+func (s *DocumentService) UpdateDocument(stringId string, documentUpdate documentapp.UpdateDocument) (*documentapp.Document, error) {
+	id, err := uuid.Parse(stringId)
+	if err != nil {
+		return nil, ErrInvalidId
+	}
+
+	md := documentUpdate.ToModelDocument()
+
+	result := s.db.Where("id = ?", id).Updates(md)
+
+	if result.Error != nil {
+		return nil, ErrFailedToUpdate
+	}
+
+	return s.GetDocument(stringId)
 }

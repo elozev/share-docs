@@ -35,3 +35,35 @@ func ToAppDocument(md models.Document) Document {
 		User: userapp.ToAppUser(md.User),
 	}
 }
+
+type UpdateDocument struct {
+	Title       *string `json:"title" validate:"omitempty"`
+	Description *string `json:"description" validate:"omitempty"`
+	Tags        *string `json:"tags" validate:"omitempty"`
+	IsPublic    *bool   `json:"is_public" validate:"omitempty"`
+}
+
+func (ud *UpdateDocument) HasAtLeastOneField() bool {
+	return ud.Title != nil || ud.Description != nil || ud.Tags != nil || ud.IsPublic != nil
+}
+
+func (ud *UpdateDocument) ToModelDocument() models.Document {
+	var d models.Document
+	if ud.Title != nil {
+		d.Title = ud.Title
+	}
+
+	if ud.Description != nil {
+		d.Description = ud.Description
+	}
+
+	if ud.Tags != nil {
+		d.Tags = ud.Tags
+	}
+
+	if ud.IsPublic != nil {
+		d.IsPublic = *ud.IsPublic
+	}
+
+	return d
+}

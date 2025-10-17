@@ -37,6 +37,7 @@ func setupDocumentRoutes(r *gin.RouterGroup, documentHandler *handlers.DocHandle
 		docs.GET("/:id", documentHandler.GetDocument)
 		docs.GET("/:id/file", documentHandler.GetFile)
 		docs.POST("/", documentHandler.CreateDocument)
+		docs.PUT(":id", documentHandler.UpdateDocument)
 	}
 }
 
